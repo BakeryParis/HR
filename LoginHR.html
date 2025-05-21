@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paris Bakery | Employee Data Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ... (CSS unchanged, as in your previous file) ... */
+    :root {
+      --primary: #6a82fb;
+      --secondary: #fc5c7d;
+      --accent: #56cfe1;
+      --bg-light: linear-gradient(120deg,#cfd9df 0%,#e2ebf0 100%);
+      --glass-bg: rgba(255,255,255,0.32);
+      --glass-blur: blur(17px);
+      --border: #fff5;
+      --text: #1a243d;
+      --muted: #5f6b81;
+      --radius: 22px;
+      --shadow: 0 10px 35px 0 rgba(46, 54, 80, 0.14);
+      --shadow-light: 0 2px 14px 0 rgba(122, 122, 255, 0.09);
+    }
+    html { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: inherit; }
+    body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: var(--bg-light); min-height: 100vh; color: var(--text); margin: 0; padding: 0 0 70px 0; background-attachment: fixed; backdrop-filter: var(--glass-blur);}
+    .header { background: linear-gradient(90deg,#43e97b 0%,#38f9d7 100%); color: #fff; padding: 34px 0 16px 0; text-align: center; font-size: 2.4em; letter-spacing: 2px; font-weight: bold; box-shadow: 0 4px 24px #6a82fb29; border-radius: 0 0 28px 28px; margin-bottom: 0; text-shadow: 0 2px 18px #6a82fb66;}
+    .container { max-width: 480px; margin: 5vh auto; padding: 32px 3vw 24px 3vw; background: var(--glass-bg); border-radius: var(--radius); box-shadow: var(--shadow); position: relative; width: 97vw; border: 1.5px solid var(--border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); animation: fadeIn 1s; overflow-x: auto; transition: max-width 0.5s cubic-bezier(.47,1.64,.41,.8);}
+    .container.big-view { max-width: 98vw; width: 98vw; padding: 32px 1vw 24px 1vw;}
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(40px);} to { opacity: 1; transform: translateY(0);}}
+    @media (max-width: 900px) { .container, .container.big-view { max-width: 100vw; min-width: 0; width: 100vw; padding: 13px 0 18px 0; border-radius: 0;}}
+    @media (max-width: 600px) { .container, .container.big-view { padding: 5px 0 9px 0;}}
+    h2 { margin: 0 0 18px 0; font-weight: 800; color: var(--primary); font-size: 2rem; letter-spacing: .01em; text-align: center; text-shadow: 0 2px 12px #fc5c7d33;}
+    .hidden { display: none !important; }
+    form#loginSection { max-width: 340px; margin: 48px auto 20px auto; padding: 38px 40px 28px 40px; background: var(--glass-bg); border-radius: var(--radius); box-shadow: var(--shadow-light); border: 1.5px solid var(--border); display: block;}
+    @media (max-width: 600px) { form#loginSection { padding: 18px 7vw 16px 7vw; margin: 32px auto 10px auto;}}
+    .input-group { margin-bottom: 22px; display: flex; flex-direction: column; align-items: stretch;}
+    label { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 5px; display: block; text-shadow: 0 1px 6px #fff7;}
+    input { width: 100%; padding: 13px 24px; border-radius: 9px; border: 1.6px solid var(--border); font-size: 17px; background: rgba(255,255,255,0.49); color: var(--text); margin-bottom: 0; margin-top: 2px; box-sizing: border-box; outline: none; transition: border-color .18s, background .18s; font-weight: 500; box-shadow: 0 2px 10px #eef2fb55 inset; letter-spacing: 0.07em;}
+    input:focus { border-color: var(--secondary); background: #fff;}
+    button { background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: #fff; padding: 13px 0; border: none; border-radius: 9px; cursor: pointer; font-size: 1.1em; font-weight: 700; width: 100%; margin: 18px 0 0 0; box-shadow: 0 2px 14px #43e97b22; transition: background .15s, transform .1s; letter-spacing: 0.7px; text-shadow: 0 1px 6px #38f9d777;}
+    button:active, button:hover { background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);}
+    .logout-btn { background: #5f6b81 !important; }
+    .logout-btn:active, .logout-btn:hover { background: #31394d !important; }
+    .top-bar { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px;}
+    .top-bar-title { font-size: 1.2rem; font-weight: 700; color: var(--primary); text-shadow: 0 2px 10px #fc5c7d22;}
+    .top-bar-buttons { display: flex; gap: 12px; width: 100%; }
+    @media (min-width: 601px) { .top-bar { flex-direction: row; align-items: center; } .top-bar-buttons { justify-content: flex-end; width: auto; } button { width: auto; min-width: 140px; }}
+    .error-message { color: var(--secondary); font-size: 15px; margin-top: 8px; min-height: 20px; letter-spacing: 0.01em; }
+    .table-wrapper { overflow-x: auto; margin-top: 24px; border-radius: 14px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.16); box-shadow: 0 2px 8px #6a82fb44; padding-bottom: 8px; max-width: 100vw; backdrop-filter: blur(5px); scrollbar-color: var(--primary) #cfd9df; scrollbar-width: thin; transition: max-width 0.5s cubic-bezier(.47,1.64,.41,.8);}
+    .container:not(.big-view) .table-wrapper { max-width: 540px; margin-left: auto; margin-right: auto;}
+    .container.big-view .table-wrapper { max-width: 100vw; margin-left: 0; margin-right: 0;}
+    .table-wrapper::-webkit-scrollbar { height: 10px; background: #e2ebf0;}
+    .table-wrapper::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px;}
+    table { width: 100%; min-width: 380px; max-width: 100%; margin: 0 auto; border-collapse: separate; border-spacing: 0; background: transparent; font-size: 15.5px;}
+    th, td { padding: 10px 7px; border-bottom: 1px solid var(--border); text-align: left; background: transparent; word-break: break-word; white-space: nowrap; font-weight: 500;}
+    th { background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%); color: #fff; font-weight: 700; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom: none; position: sticky; top: 0; z-index: 2; font-size: 15.5px; letter-spacing: 0.03em; text-shadow: 0 1px 8px #fff7;}
+    tr:last-child td { border-bottom: none; }
+    .pdf-btn { background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 7px; margin: 0; box-shadow: 0 2px 10px #6a82fb22; width: auto; min-width: 0; border: none; transition: background .15s; text-shadow: 0 1px 6px #6a82fb44;}
+    .pdf-btn:hover, .pdf-btn:active { background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; }
+    @media (max-width: 900px) { .table-wrapper, table { min-width: 340px; } th, td { font-size: 12.5px; padding: 8px 3px; }}
+    @media (max-width: 600px) { .table-wrapper, table { min-width: 220px; } .top-bar-title { font-size: 1rem; } .pdf-btn, button { font-size: 12px; min-width: 65px; padding: 7px 0; } th, td { font-size: 11.5px; } }
+    .footer-bar { position: fixed; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg,#43e97b 0%,#38f9d7 100%); color: #fff; font-size: 1.08em; padding: 14px 22px; text-align: left; z-index: 100; box-shadow: 0 -2px 18px #6a82fb29; letter-spacing: .03em; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; display: flex; align-items: center; justify-content: flex-start; transition: background 0.22s; border-top: 1.3px solid #fff5; backdrop-filter: blur(11px);}
+    .footer-bar:hover { background: linear-gradient(90deg,#38f9d7 0%,#43e97b 100%);}
+    .footer-bar .footer-contact { margin-left: 22px; font-size: 1em; opacity: 0.97; letter-spacing: .01em;}
+    @media (max-width: 600px) { .footer-bar { text-align: center; justify-content: center; padding: 12px 4vw; font-size: 0.99em; } .footer-bar .footer-contact { margin-left: 0; display: block; } }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div class="header">Paris Bakery</div>
+<div class="container" id="mainContainer">
+  <form id="loginSection" autocomplete="off" onsubmit="login(); return false;">
+    <h2>HR Login</h2>
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="username" />
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+    </div>
+    <button type="submit">Login</button>
+    <div id="error" class="error-message"></div>
+  </form>
+  <div id="dashboardSection" class="hidden">
+    <div class="top-bar">
+      <span class="top-bar-title">Employee Information Data</span>
+      <div class="top-bar-buttons">
+        <button onclick="downloadCSV()">Download CSV</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="footer-bar">
+  Design & Develop by Samir Singhsamanta.
+  <span class="footer-contact">
+    Contact: 7606936790 &nbsp; samirsinghasamanta@gmail.com
+  </span>
+</div>
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGVbWbrwzQ0FLsQL5MpDU1wrG3fjwiHPOUTUVHX2tZN7iLMVNFiy1KPxIorHh-yd4BRQ/exec";
+  const validUsers = { "admin": "parikud", "deepa": "paris@2025", "sameer": "sameer@1996" };
+
+  // --- FIXED DATE FORMAT FUNCTION ---
+  function formatDateTo_ddMMMyyyy(dateStr) {
+    if (!dateStr) return "";
+    // Direct ISO yyyy-mm-dd support (Google Sheets usually returns as UTC midnight)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      // This will construct the date as local time, which can be off by timezone.
+      // Instead, use Date.UTC to get the correct date, then convert to local.
+      const [y, m, d] = dateStr.split('-').map(Number);
+      // Use Date.UTC to avoid timezone offset
+      var dt = new Date(Date.UTC(y, m - 1, d));
+      let day = ("0" + dt.getUTCDate()).slice(-2);
+      let month = dt.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+      let year = dt.getUTCFullYear();
+      return `${day}-${month}-${year}`;
+    }
+    // Try to parse as ISO or local string
+    var d = new Date(dateStr);
+    if (!isNaN(d)) {
+      let day = ("0" + d.getDate()).slice(-2);
+      let month = d.toLocaleString('en-US', { month: 'long' });
+      let year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+    // fallback for numeric or serial
+    if (!isNaN(dateStr) && Number(dateStr) > 10000) {
+      var date = new Date(Math.round((Number(dateStr) - 25569) * 86400 * 1000));
+      let day = ("0" + date.getDate()).slice(-2);
+      let month = date.toLocaleString('en-US', { month: 'long' });
+      let year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+    // fallback: return as-is
+    return dateStr;
+  }
+
+  function login() {
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value.trim();
+    if (validUsers[user] && validUsers[user] === pass) {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("dashboardSection").classList.remove("hidden");
+      document.getElementById("error").textContent = "";
+      document.getElementById("mainContainer").classList.add("big-view");
+      fetchData();
+    } else {
+      document.getElementById("error").textContent = "Invalid username or password.";
+    }
+  }
+  function logout() {
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("loginSection").classList.remove("hidden");
+    document.getElementById("dashboardSection").classList.add("hidden");
+    document.getElementById("tableHead").innerHTML = "";
+    document.getElementById("tableBody").innerHTML = "";
+    document.getElementById("error").textContent = "";
+    document.getElementById("mainContainer").classList.remove("big-view");
+  }
+  function fetchData() {
+    fetch(SCRIPT_URL)
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) return;
+        const headers = Object.keys(data[0]);
+        const headRow = document.getElementById("tableHead");
+        const body = document.getElementById("tableBody");
+        // Show header, but map DoB to correct label
+        headRow.innerHTML = "<tr>" + headers.map(h => `<th>${h}</th>`).join('') + "<th>Download PDF</th></tr>";
+        body.innerHTML = data.map((row, i) => {
+          const rowHtml = headers.map(h => {
+            // Use fixed date formatting for DoB (case-insensitive match)
+            if (h.replace(/\s+/g, '').toLowerCase().includes("dob") || h.toLowerCase().includes("date of birth")) {
+              return `<td>${formatDateTo_ddMMMyyyy(row[h])}</td>`;
+            }
+            return `<td>${row[h]}</td>`;
+          }).join('');
+          return `<tr>${rowHtml}<td>
+            <button type="button" class="pdf-btn" onclick="downloadRowPDF(${i})">Download PDF</button>
+          </td></tr>`;
+        }).join('');
+        window.__rowData = data;
+        window.__rowHeaders = headers;
+      })
+      .catch(error => { alert("Error loading data: " + error); });
+  }
+  function downloadCSV() {
+    const rows = Array.from(document.querySelectorAll("table tr"));
+    const csv = rows.map(row => {
+      return Array.from(row.querySelectorAll("th, td")).map(cell => `"${cell.innerText.replace(/"/g, '""')}"`).join(",");
+    }).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "Employee-data.csv"; a.click(); URL.revokeObjectURL(url);
+  }
+  function drawConfirmationBlock(doc, y) {
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
+    const marginL = 18, marginR = 192;
+    let x = marginL, underlineH = 0.8;
+    doc.text("This is to confirm that Mr. /Ms.", x, y);
+    x += doc.getTextWidth("This is to confirm that Mr. /Ms.") + 1.5;
+    let lineLen1 = 44;
+    doc.line(x, y + underlineH, x + lineLen1, y + underlineH);
+    x += lineLen1 + 2;
+    doc.text("s/o d/o w/o", x, y);
+    x += doc.getTextWidth("s/o d/o w/o") + 1.5;
+    let lineLen2 = marginR - x - 2;
+    if (lineLen2 > 60) lineLen2 = 60;
+    doc.line(x, y + underlineH, x + lineLen2, y + underlineH);
+    y += 6.2;
+    x = marginL;
+    doc.text("has joined Jam foods and beverages Pvt Ltd., as", x, y);
+    x += doc.getTextWidth("has joined Jam foods and beverages Pvt Ltd., as") + 1.5;
+    let lineLen3 = 34;
+    doc.line(x, y + underlineH, x + lineLen3, y + underlineH);
+    x += lineLen3 + 2;
+    doc.text("with effect from", x, y);
+    x += doc.getTextWidth("with effect from") + 1.5;
+    let lineLen4 = marginR - x - 2;
+    if (lineLen4 > 35) lineLen4 = 35;
+    doc.line(x, y + underlineH, x + lineLen4, y + underlineH);
+    y += 6.2;
+    x = marginL;
+    let lineLen5 = 31;
+    doc.line(x, y + underlineH, x + lineLen5, y + underlineH);
+    x += lineLen5 + 2;
+    doc.text("in", x, y);
+    x += doc.getTextWidth("in") + 2;
+    let lineLen6 = 38;
+    doc.line(x, y + underlineH, x + lineLen6, y + underlineH);
+    x += lineLen6 + 2;
+    doc.text("department in", x, y);
+    x += doc.getTextWidth("department in") + 2;
+    let lineLen7 = marginR - x - 2;
+    if (lineLen7 > 29) lineLen7 = 29;
+    doc.line(x, y + underlineH, x + lineLen7, y + underlineH);
+    x += lineLen7 + 2;
+    doc.text("office.", x, y);
+    return y + 7;
+  }
+  function downloadRowPDF(rowIndex) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const data = window.__rowData[rowIndex];
+    const headers = window.__rowHeaders;
+    let fontSize = 10;
+    let y = 19;
+    doc.setTextColor(106,130,251);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(20);
+    doc.text("Employee Information Form", 105, y, { align: "center" });
+    y += 9;
+    y = drawConfirmationBlock(doc, y);
+    function v(field) {
+      if (!headers) return "";
+      const idx = headers.findIndex(h => h.replace(/\s+/g, '').toLowerCase() === field.replace(/\s+/g, '').toLowerCase());
+      return idx !== -1 ? (data[headers[idx]] || "") : "";
+    }
+    const fieldsLayout = {
+      personal: [
+        [["Employee Full Name", v("Employee Full Name")], ["Father's Name", v("Father's Name")]],
+        [["Gender", v("Gender")], ["Date of Birth", formatDateTo_ddMMMyyyy(v("Date of Birth"))]],
+        [["Mobile Number", v("Mobile Number")], ["E Mail ID", v("E Mail ID")]],
+        [["Driver License No.", v("Driver License No.")], ["PAN No.", v("PAN No.")]],
+        [["Passport No.", v("Passport No.")], ["", ""]]
+      ],
+      present: [
+        [["Address Line 1", v("Address Line 1")], ["Address Line 2", v("Address Line 2")]],
+        [["City", v("City")], ["Pin Code", v("Pin Code")]],
+        [["State", v("State")], ["", ""]]
+      ],
+      permanent: [
+        [["P Address Line 1", v("P Address Line 1")], ["P Address Line 2", v("P Address Line 2")]],
+        [["P City", v("P City")], ["P Pin Code", v("P Pin Code")]],
+        [["P State", v("P State")], ["", ""]]
+      ],
+      professional: [
+        [["Education Qualification", v("Education Qualification")], ["", ""]],
+        [["Certification", v("Certification")], ["", ""]]
+      ],
+      family: [
+        [["Marital Status", v("Marital Status")], ["Spouse Name", v("Spouse Name")]],
+        [["No. of Children", v("No. of Children")], ["", ""]]
+      ],
+      medical: [
+        [["Blood Group", v("Blood Group")], ["Allergies", v("Allergies")]],
+        [["Emergency Contact", v("Emergency Contact")], ["Relationship", v("Relationship")]],
+        [["Contact No", v("Contact No")], ["Address", v("Address")]]
+      ]
+    };
+    function section(title, rows) {
+      doc.setFont("helvetica", "bold"); doc.setFontSize(fontSize + 2); doc.setTextColor(106,130,251);
+      doc.text(title, 18, y += 8.7);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(fontSize); doc.setTextColor(0, 0, 0);
+      const body = rows.map(row => [
+        { content: row[0][0], styles: { fontStyle: 'bold' } },
+        row[0][1] || "",
+        { content: row[1][0], styles: { fontStyle: 'bold' } },
+        row[1][1] || ""
+      ]);
+      const startY = y + 2;
+      doc.autoTable({
+        startY,
+        pageBreak: 'avoid',
+        margin: { left: 18, right: 18 },
+        tableWidth: 174,
+        styles: {
+          font: 'helvetica',
+          fontSize: fontSize,
+          cellPadding: 1.1,
+          minCellHeight: 6.5,
+          halign: 'left',
+          valign: 'middle',
+        },
+        columnStyles: {
+          0: { cellWidth: 36 },
+          1: { cellWidth: 47 },
+          2: { cellWidth: 36 },
+          3: { cellWidth: 47 }
+        },
+        head: [],
+        body,
+        willDrawCell: function (data) { if (!data.cell.raw) data.cell.styles.lineWidth = 0; }
+      });
+      y = doc.lastAutoTable.finalY || startY + 7;
+    }
+    section("Personal Information", fieldsLayout.personal);
+    section("Present Address", fieldsLayout.present);
+    section("Permanent Address", fieldsLayout.permanent);
+    section("Professional Information", fieldsLayout.professional);
+    section("Family Information", fieldsLayout.family);
+    section("Medical Information", fieldsLayout.medical);
+    y += 11;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(fontSize + 1);
+    doc.setTextColor(0, 0, 0);
+    doc.text("Employee Sign:", 18, y);
+    doc.line(44, y + 0.7, 100, y + 0.7);
+    if (y > 287) {
+      downloadRowPDF.shrink = (downloadRowPDF.shrink || 0) + 1;
+      if (downloadRowPDF.shrink < 2) { return setTimeout(() => downloadRowPDF(rowIndex), 0); }
+    }
+    downloadRowPDF.shrink = 0;
+    doc.save(`Employee${rowIndex + 1}.pdf`);
+  }
+  document.getElementById('loginSection').addEventListener('submit', function(e) { e.preventDefault(); login(); });
+  window.onload = function() { if(window.innerWidth > 600) document.getElementById('username').focus(); };
+</script>
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paris Bakery | Employee Information Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      --glass-bg: rgba(255,255,255,0.28);
+      --glass-blur: blur(16px);
+      --primary: #4a77d4;
+      --secondary: #d72660;
+      --accent: #56cfe1;
+      --border: #fff4;
+      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+      --text: #202a44;
+      --radius: 22px;
+    }
+    html { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: inherit; }
+    body {
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background: var(--main-gradient);
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      padding-bottom: 70px;
+      backdrop-filter: var(--glass-blur);
+      background-attachment: fixed;
+    }
+    .header {
+      background: linear-gradient(90deg, #56cfe1 0%, #845ec2 100%);
+      color: #fff;
+      padding: 34px 0 14px 0;
+      text-align: center;
+      font-size: 2.4em;
+      letter-spacing: 2px;
+      font-weight: bold;
+      box-shadow: 0 4px 24px rgba(86,207,225,0.13);
+      border-radius: 0 0 28px 28px;
+      margin-bottom: 0;
+      text-shadow: 0 2px 20px #845ec277;
+    }
+    form {
+      background: var(--glass-bg);
+      box-shadow: var(--shadow);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      max-width: 700px;
+      margin: 32px auto 48px auto;
+      padding: 40px 36px 36px 36px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 1s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      font-weight: 800;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 9px #a8edea99;
+    }
+    h3 {
+      color: var(--secondary);
+      margin-bottom: 13px;
+      font-weight: 700;
+      font-size: 1.18em;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 8px #fed6e355;
+    }
+    .form-section { display: none; }
+    .form-section.active { display: block; animation: fadeIn 0.7s; }
+    .form-group { 
+      margin-bottom: 24px; 
+      position: relative;
+    }
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+      color: #23263a;
+      letter-spacing: 0.35px;
+      text-shadow: 0 1px 6px #fff7;
+    }
+    input, select, textarea {
+      width: 100%; 
+      padding: 13px 15px; 
+      border-radius: 9px; 
+      border: 1.5px solid var(--border);
+      font-size: 1em; 
+      box-sizing: border-box;
+      background: rgba(255,255,255,0.48);
+      color: var(--text);
+      transition: border-color 0.23s, box-shadow 0.21s, background 0.16s;
+      outline: none;
+      margin-top: 2px;
+      box-shadow: 0 2px 10px #eef2fb55 inset;
+      font-weight: 500;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px #d726601f;
+      background: rgba(255,255,255,0.81);
+    }
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+    .section-buttons { 
+      display: flex; 
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 8px;
+    }
+    button, input[type="submit"] {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 36px;
+      border-radius: 9px;
+      font-size: 1.06em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 15px #56cfe144, 0 1.5px 3px 0 #fed6e3;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.8px;
+      text-shadow: 0 1px 6px #845ec277;
+    }
+    button:disabled, input[type="submit"]:disabled {
+      background: #bdbde9;
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+    .required {
+      color: var(--secondary);
+      margin-left: 4px;
+      font-weight: bold;
+    }
+    .hr-ref {
+      font-weight: bold;
+      color: var(--primary);
+      text-shadow: 0 1px 6px #fed6e355;
+    }
+    .progressbar {
+      position: absolute;
+      left: 0; top: 0; right: 0;
+      height: 7px;
+      background: #eef2fbdd;
+      border-radius: 8px 8px 0 0;
+      overflow: hidden;
+      margin-bottom: 18px;
+      width: 100%;
+      box-shadow: 0 2px 12px #fed6e366;
+    }
+    .progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      transition: width 0.4s;
+    }
+    .processing-overlay {
+      position: fixed;
+      z-index: 9999;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(168,237,234, 0.13);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.25s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .processing-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .processing-content {
+      text-align: center;
+      padding: 32px 40px;
+      background: rgba(255,255,255,0.82);
+      border-radius: 18px;
+      box-shadow: 0 7px 28px 0 #85f7f755;
+      min-width: 280px;
+      animation: fadeIn 0.5s;
+      border: 1.5px solid #fff6;
+      backdrop-filter: blur(7px);
+    }
+    .processing-spinner {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: center;
+    }
+    .dot {
+      width: 16px;
+      height: 16px;
+      margin: 0 5px;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      display: inline-block;
+      animation: bounce 1.1s infinite alternate;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      to {
+        transform: translateY(-18px) scale(1.18);
+        background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
+      }
+    }
+    .processing-message {
+      color: var(--primary);
+      font-size: 1.22em;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      margin-bottom: 0;
+    }
+    .processing-success {
+      color: #37b24d;
+      font-size: 1.22em;
+      font-weight: 700;
+      letter-spacing: 0.7px;
+      margin-top: 0.5em;
+      margin-bottom: 0;
+      animation: fadeIn 0.7s;
+    }
+    @media (max-width: 700px) {
+      form { padding: 18px 4vw 24px 4vw; }
+      .header { font-size: 2em; }
+      .processing-content { min-width: 140px; padding: 16px 10vw;}
+    }
+    .footer-bar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, #43c6ac 0%, #191654 100%);
+      color: #fff; font-size: 1.08em;
+      padding: 13px 18px;
+      text-align: left;
+      z-index: 100;
+      box-shadow: 0 -2px 18px rgba(101,16,242,0.09);
+      letter-spacing: .03em;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      display: flex; align-items: center; justify-content: flex-start;
+      transition: background 0.22s;
+      backdrop-filter: blur(14px);
+      border-top: 1.2px solid #fff4;
+    }
+    .footer-bar:hover {
+      background: linear-gradient(90deg, #191654 0%, #43c6ac 100%);
+    }
+    .footer-bar .footer-contact {
+      margin-left: 22px;
+      font-size: 1em;
+      opacity: 0.96;
+      letter-spacing: .01em;
+    }
+    @media (max-width: 600px) {
+      .footer-bar { text-align: center; justify-content: center; padding: 12px 4vw; font-size: 0.99em; }
+      .footer-bar .footer-contact { margin-left: 0; display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">Paris Bakery</div>
+  <form id="employeeForm" autocomplete="off">
+    <div class="progressbar"><div class="progress" id="progressBar" style="width:14%"></div></div>
+    <h2>Employee Information Form</h2>
+    <!-- Section 1: Personal Information -->
+    <div class="form-section active" id="section-1">
+      <h3>Personal Information</h3>
+      <div class="form-group">
+        <label>Employee Full Name <span class="required">*</span></label>
+        <input type="text" name="employeeFullName" required>
+      </div>
+      <div class="form-group">
+        <label>Father's Name <span class="required">*</span></label>
+        <input type="text" name="fathersName" required>
+      </div>
+      <div class="form-group">
+        <label>Date of Birth <span class="required">*</span></label>
+        <input type="date" name="dob" required>
+      </div>
+      <div class="form-group">
+        <label>Gender <span class="required">*</span></label>
+        <select name="gender" required>
+          <option value="">Select Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mobile Number <span class="required">*</span></label>
+        <input type="tel" name="mobile" pattern="[0-9]{10}" maxlength="10" required>
+      </div>
+      <div class="form-group">
+        <label>E Mail ID <span class="required">*</span></label>
+        <input type="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label>Driver License No.</label>
+        <input type="text" name="driverLicense">
+      </div>
+      <div class="form-group">
+        <label>Passport No.</label>
+        <input type="text" name="passport">
+      </div>
+      <div class="form-group">
+        <label>PAN No.</label>
+        <input type="text" name="panno">
+      </div>
+      <div class="section-buttons">
+        <span></span>
+        <button type="button" onclick="nextSection(1)">Next</button>
+      </div>
+    </div>
+    <!-- Section 2: Present Address -->
+    <div class="form-section" id="section-2">
+      <h3>Present Address</h3>
+      <div class="form-group">
+        <label>Address Line 1 <span class="required">*</span></label>
+        <input type="text" name="presentAddress1" required>
+      </div>
+      <div class="form-group">
+        <label>Address Line 2</label>
+        <input type="text" name="presentAddress2">
+      </div>
+      <div class="form-group">
+        <label>City <span class="required">*</span></label>
+        <input type="text" name="presentCity" required>
+      </div>
+      <div class="form-group">
+        <label>State <span class="required">*</span></label>
+        <select name="presentState" required>
+          <option value="">Select State</option>
+          <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+          <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+          <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+          <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+          <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+          <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+          <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+          <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+          <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+          <option>West Bengal</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pin Code <span class="required">*</span></label>
+        <input type="text" name="presentPin" pattern="[0-9]{6}" maxlength="6" required>
+      </div>
+      <div class="section-buttons">
+        <button type="button" onclick="prevSection(2)">Previous</button>
+        <button type="button" onclick="nextSection(2)">Next</button>
+      </div>
+    </div>
+    <!-- Section 3: Permanent Address -->
+    <div class="form-section" id="section-3">
+      <h3>Permanent Address</h3>
+      <div class="form-group">
+        <label>Address Line 1 <span class="required">*</span></label>
+        <input type="text" name="permanentAddress1" required>
+      </div>
+      <div class="form-group">
+        <label>Address Line 2</label>
+        <input type="text" name="permanentAddress2">
+      </div>
+      <div class="form-group">
+        <label>City <span class="required">*</span></label>
+        <input type="text" name="permanentCity" required>
+      </div>
+      <div class="form-group">
+        <label>State <span class="required">*</span></label>
+        <select name="permanentState" required>
+          <option value="">Select State</option>
+          <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+          <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+          <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+          <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+          <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+          <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+          <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+          <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+          <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+          <option>West Bengal</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pin Code <span class="required">*</span></label>
+        <input type="text" name="permanentPin" pattern="[0-9]{6}" maxlength="6" required>
+      </div>
+      <div class="section-buttons">
+        <button type="button" onclick="prevSection(3)">Previous</button>
+        <button type="button" onclick="nextSection(3)">Next</button>
+      </div>
+    </div>
+    <!-- Section 4: Professional -->
+    <div class="form-section" id="section-4">
+      <h3>Professional Information</h3>
+      <div class="form-group">
+        <label>Education Qualification <span class="required">*</span></label>
+        <input type="text" name="educationQualification" required>
+      </div>
+      <div class="form-group">
+        <label>Certification</label>
+        <input type="text" name="certification">
+      </div>
+      <div class="section-buttons">
+        <button type="button" onclick="prevSection(4)">Previous</button>
+        <button type="button" onclick="nextSection(4)">Next</button>
+      </div>
+    </div>
+    <!-- Section 5: Family -->
+    <div class="form-section" id="section-5">
+      <h3>Family Information</h3>
+      <div class="form-group">
+        <label>Marital Status <span class="required">*</span></label>
+        <select name="maritalStatus" required>
+          <option value="">Select</option>
+          <option>Single</option>
+          <option>Married</option>
+          <option>Divorced</option>
+          <option>Widowed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Spouse Name</label>
+        <input type="text" name="spouseName">
+      </div>
+      <div class="form-group">
+        <label>No. of Children</label>
+        <input type="number" name="children" min="0">
+      </div>
+      <div class="section-buttons">
+        <button type="button" onclick="prevSection(5)">Previous</button>
+        <button type="button" onclick="nextSection(5)">Next</button>
+      </div>
+    </div>
+    <!-- Section 6: Medical -->
+    <div class="form-section" id="section-6">
+      <h3>Medical Information</h3>
+      <div class="form-group">
+        <label>Blood Group</label>
+        <select name="bloodGroup">
+          <option value="">Select Blood Group</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Allergies</label>
+        <input type="text" name="allergies">
+      </div>
+      <div class="form-group">
+        <label>Emergency Contact Name <span class="required">*</span></label>
+        <input type="text" name="emergencyContact" required>
+      </div>
+      <div class="form-group">
+        <label>Relationship <span class="required">*</span></label>
+        <select name="emergencyRelationship" required>
+          <option value="">Select</option>
+          <option>Father</option><option>Mother</option><option>Brother</option>
+          <option>Sister</option><option>Son</option><option>Daughter</option>
+          <option>Husband</option><option>Wife</option><option>Friend</option>
+          <option>Uncle</option><option>Aunt</option><option>Nephew</option>
+          <option>Niece</option><option>Cousin</option><option>Grandfather</option>
+          <option>Grandmother</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Contact No. <span class="required">*</span></label>
+        <input type="text" name="emergencyContactNo" pattern="[0-9]{10}" maxlength="10" required>
+      </div>
+      <div class="form-group">
+        <label>Address <span class="required">*</span></label>
+        <textarea name="emergencyAddress" required></textarea>
+      </div>
+      <div class="section-buttons">
+        <button type="button" onclick="prevSection(6)">Previous</button>
+        <button type="button" onclick="nextSection(6)">Next</button>
+      </div>
+    </div>
+    <!-- Section 7: HR Ref & Submit -->
+    <div class="form-section" id="section-7">
+      <h3>HR Ref. code: <span class="hr-ref">filled up by HR</span></h3>
+      <div class="form-group">
+        <label>Enter HR Ref. code to enable submission <span class="required">*</span></label>
+        <input type="text" id="hrRefInput" required placeholder="Enter HR Ref. code">
+      </div>
+      <div class="section-buttons">
+        <button type="button" onclick="prevSection(7)">Previous</button>
+        <input type="submit" id="submitBtn" value="Submit" disabled>
+      </div>
+    </div>
+  </form>
+  <div class="processing-overlay" id="processingOverlay">
+    <div class="processing-content" id="processingContent">
+      <div class="processing-spinner" id="processingSpinner">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <p class="processing-message" id="processingMessage">Saving your record...</p>
+    </div>
+  </div>
+  <div class="footer-bar">
+    Design & Develop by Samir Singhsamanta.
+    <span class="footer-contact">
+      Contact: 7606936790 &nbsp; samirsinghasamanta@gmail.com
+    </span>
+  </div>
+  <script>
+    const sections = document.querySelectorAll('.form-section');
+    let currentSection = 0;
+    const totalSections = sections.length;
+    const progressBar = document.getElementById('progressBar');
+    function showSection(idx) {
+      sections.forEach((sec, i) => {
+        sec.classList.toggle('active', i === idx);
+      });
+      currentSection = idx;
+      updateProgressBar();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function updateProgressBar() {
+      const percent = Math.round(((currentSection + 1) / totalSections) * 100);
+      progressBar.style.width = percent + "%";
+    }
+    function nextSection(idx) {
+      if (validateSection(idx - 1)) showSection(idx);
+    }
+    function prevSection(idx) {
+      showSection(idx - 2);
+    }
+    function validateSection(idx) {
+      const section = sections[idx];
+      const requiredFields = section.querySelectorAll('[required]');
+      for (let field of requiredFields) {
+        if (!field.value.trim()) {
+          field.focus();
+          alert('Please fill all mandatory fields.');
+          return false;
+        }
+        if (field.tagName === 'SELECT' && !field.value) {
+          field.focus();
+          alert('Please select all mandatory fields.');
+          return false;
+        }
+      }
+      return true;
+    }
+    document.getElementById('hrRefInput').addEventListener('input', function() {
+      document.getElementById('submitBtn').disabled = (this.value !== '7682806927');
+    });
+    function showProcessing(message) {
+      const overlay = document.getElementById('processingOverlay');
+      const messageEl = document.getElementById('processingMessage');
+      const spinner = document.getElementById('processingSpinner');
+      messageEl.textContent = message || "Saving your record...";
+      spinner.style.display = "flex";
+      messageEl.classList.remove("processing-success");
+      overlay.classList.add('active');
+    }
+    function hideProcessing() {
+      document.getElementById('processingOverlay').classList.remove('active');
+    }
+    function showSuccess(message) {
+      const messageEl = document.getElementById('processingMessage');
+      const spinner = document.getElementById('processingSpinner');
+      spinner.style.display = "none";
+      messageEl.textContent = message || "Record saved successfully!";
+      messageEl.classList.add("processing-success");
+    }
+    document.getElementById('employeeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = {};
+      const allFields = this.querySelectorAll('input, select, textarea');
+      allFields.forEach(f => { if (f.name) formData[f.name] = f.value.trim(); });
+      showProcessing("Saving your record...");
+      fetch('https://script.google.com/macros/s/AKfycbwZJ457M6VTUISyWv2aMrJa9RGG-Q3MzRvrcjSUbFklucqXv7YctcE50QuZ2n5_mNauJw/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      }).then(() => {
+        showSuccess('Form submitted successfully!');
+        this.reset();
+        showSection(0);
+        document.getElementById('submitBtn').disabled = true;
+        setTimeout(hideProcessing, 1800);
+      }).catch(() => {
+        hideProcessing();
+        alert('There was an error submitting the form.');
+      });
+    });
+    updateProgressBar();
+  </script>
+</body>
+</html>
